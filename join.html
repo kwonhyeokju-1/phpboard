@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<form method="post" action="/join.php">
+<label>아이디</label>
+<input type="text" name="id" id="id1" onkeyup="idcheck()"><span id="ids">아이디는 7자리 이상 입력하세요. 영소문자, 숫자, 기호는 -와 _만 허용됩니다.</span><br>
+<input type="hidden" name="hiddenid" id="idh" value="">
+닉네임 : <input type="text" id="nickname1" name="nickname" onkeyup="nicknamecheck()"><span id="nicknames">특수문자는 사용할 수 없습니다.</span><br>
+<input type="hidden" name="hiddennickname" id="nicknameh" value="">
+비밀번호 : <input type="password" name="password1" id="password01" onkeyup="passwordcheck(this.value)"><span id="passwords1">영문, 숫자, 특수문자를 포함한  8자리 이상 입력하세요.</span><br>
+비밀번호 확인 : <input type="password" name="password2" id="password02" onkeyup="passwordcheck2(this.value)"><span id="passwords2">비밀번호와 동일한 값을 입력해주세요.</span><br>
+<input type="hidden" name="hiddenpassword" id="passwordh" value="">
+<input type="submit">
+</form>
+<div id="demo"></div>
+<script>
+function idcheck() { //idcheck() 함수 실행 시작 부분
+var idc = document.getElementById("id1").value.replace(/[^a-z0-9_-]/g,"");
+//아이디 입력 값에 a-z까지의 소문자, 알파벳 및 0-9까지의 숫자, _ 또는 - 특수문자를
+//제외한 값은 전부 공란으로 변경을 시켜서 변수 idc에 저장
+document.getElementById("id1").value = idc;
+//id1을 가진 요소 즉, 아이디 입력란의 값을 idc에 저장된 값으로 교체
+
+if(idc.length >= 7) { //idc에 저장된 문자열 길이가 7이상일 때 실행 시작 부분
+
+var number = idc.search(/[0-9]/g);
+//idc에 저장된 문자열에 0-9까지의 숫자중 하나라도 있다면 0을 없다면 -1을
+//변수 number에 저장
+var alphabet = idc.search(/[a-z]/g);
+//idc에 저장된 문자열에 a-z까지의 알파벳중 하나라도 있다면 0을 없다면 -1을
+//변수 alphabet에 저장
+if(number >= 0 && alphabet >= 0) {
+//number 및 alphabet 변수에 저장된 값이 0이상일 때 실행 시작 부분
+
+var obj, dbParam, xmlhttp, myObj, x;
+//변수 obj, dbParam, xmlhttp, myObj, x 생성
+obj = {"table":"member","id":idc};
+//변수 obj는 자바스크립트 객체 정보를 저장한다.
+dbParam = JSON.stringify(obj);
+//변수 dbParam은 onj에 담긴 자바스크립트 객체 정보를 JSON형식의 문자열로 저장한다.
+xmlhttp = new XMLHttpRequest();
+//변수 xmlhttp는 서버에 데이터를 요청한 값을 저장한다.
+xmlhttp.onreadystatechange = function() {
+//xmlhttpRequest 객체의 상태가 변할 때마다 자동으로 호출하는 함수 실행 시작 부분
+if(this.readyState == 4 && this.status == 200) {
+//데이터 전부를 받은 상태이고,
+//서버로부터의 응답상태가 요청 성공 상태라면 실행 시작 부분
+myObj = JSON.parse(this.responseText);
+//응답받은 JSON형식의 문자열을 자바스크립트 객체 값으로 myObj에 저장
+for(x in myObj) {
+//myObj에 저장된 자바스크립트 객체의 배열의 길이 값만큼 반복 실행 시작 부분
+if(myObj[x] == '1') { //myObj[x]에 담긴 값이 1이라면 실행 시작 부분
+document.getElementById("ids").innerHTML = "아이디가 존재합니다.";
+document.getElementById("idh").value = "";
+} //myObj[x]에 담긴 값이 1이라면 실행 끝 부분
+else { //myObj[x]에 담긴 값이 1이 아니라면 실행 시작 부분
+document.getElementById("ids").innerHTML = "사용할 수 있는 아이디입니다.";
+document.getElementById("idh").value = "1";
+} //myObj[x]에 담긴 값이 1이 아니라면 실행 끝 부분
+} //myObj에 저장된 자바스크립트 객체의 배열의 길이 값만큼 반복 실행 끝 부분
+}
+//데이터 전부를 받은 상태이고,
+//서버로부터의 응답상태가 요청 성공 상태라면 실행 끝 부분
+}; //xmlhttpRequest 객체의 상태가 변할 때마다 자동으로 호출하는 함수 실행 끝 부분
+xmlhttp.open("POST","idcheck.php",true);
+xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp.send("content="+dbParam);
+} //number 및 alphabet 변수에 저장된 값이 0이상일 때 실행 끝 부분
+
+else { //number 및 alphabet 변수에 저장된 값이 0미만일 때 실행 시작 부분
+document.getElementById("ids").innerHTML = "영문 및 숫자 조합이 아닙니다.";
+document.getElementById("idh").value = "";
+} //number 및 alphabet 변수에 저장된 값이 0미만일 때 실행 끝 부분
+
+} //idc에 저장된 문자열 길이가 7이상일 때 실행 끝 부분
+else { //idc에 저장된 문자열 길이가 7 미만일 때 실행 시작 부분
+document.getElementById("ids").innerHTML = "아이디는 7자리 이상 입력하세요. 영소문자, 숫자, 기호는 -와 _만 허용됩니다.";
+document.getElementById("idh").value = "";
+} //idc에 저장된 문자열 길이가 7 미만일 때 실행 끝 부분
+
+} //idcheck() 함수 실행 끝 부분
+
+function nicknamecheck() { //nicknamecheck() 함수 실행 시작 부분
+var nicknamec = document.getElementById("nickname1").value.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g,"");
+//닉네임 입력 값에 a-z까지의 소문자, 알파벳 및 0-9까지의 숫자, _ 또는 - 특수문자를
+//제외한 값은 전부 공란으로 변경을 시켜서 변수 nicknamec에 저장
+document.getElementById("nickname1").value = nicknamec;
+//nickname1을 가진 요소 즉, 닉네임 입력란의 값을 nicknamec에 저장된 값으로 교체
+
+if(nicknamec.length >= 1) { //nicknamec에 저장된 문자열 길이가 1이상일 때 실행 시작 부분
+
+var obj, dbParam, xmlhttp, myObj, x;
+//변수 obj, dbParam, xmlhttp, myObj, x 생성
+obj = {"table":"member","nickname":nicknamec};
+//변수 obj는 자바스크립트 객체 정보를 저장한다.
+dbParam = JSON.stringify(obj);
+//변수 dbParam은 onj에 담긴 자바스크립트 객체 정보를 JSON형식의 문자열로 저장한다.
+xmlhttp = new XMLHttpRequest();
+//변수 xmlhttp는 서버에 데이터를 요청한 값을 저장한다.
+xmlhttp.onreadystatechange = function() {
+//xmlhttpRequest 객체의 상태가 변할 때마다 자동으로 호출하는 함수 실행 시작 부분
+if(this.readyState == 4 && this.status == 200) {
+//데이터 전부를 받은 상태이고,
+//서버로부터의 응답상태가 요청 성공 상태라면 실행 시작 부분
+myObj = JSON.parse(this.responseText);
+//응답받은 JSON형식의 문자열을 자바스크립트 객체 값으로 myObj에 저장
+for(x in myObj) {
+//myObj에 저장된 자바스크립트 객체의 배열의 길이 값만큼 반복 실행 시작 부분
+if(myObj[x] == '1') { //myObj[x]에 담긴 값이 1이라면 실행 시작 부분
+document.getElementById("nicknames").innerHTML = "이미 존재하는 닉네임입니다.";
+document.getElementById("nicknameh").value = "";
+} //myObj[x]에 담긴 값이 1이라면 실행 끝 부분
+else { //myObj[x]에 담긴 값이 1이 아니라면 실행 시작 부분
+document.getElementById("nicknames").innerHTML = "사용할 수 있는 닉네임입니다.";
+document.getElementById("nicknameh").value = "1";
+} //myObj[x]에 담긴 값이 1이 아니라면 실행 끝 부분
+} //myObj에 저장된 자바스크립트 객체의 배열의 길이 값만큼 반복 실행 끝 부분
+}
+//데이터 전부를 받은 상태이고,
+//서버로부터의 응답상태가 요청 성공 상태라면 실행 끝 부분
+}; //xmlhttpRequest 객체의 상태가 변할 때마다 자동으로 호출하는 함수 실행 끝 부분
+xmlhttp.open("POST","nicknamecheck.php",true);
+xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp.send("content="+dbParam);
+} //nicknamec에 저장된 문자열 길이가 1이상일 때 실행 끝 부분
+else { //nicknamec에 저장된 문자열 길이가 1 미만일 때 실행 시작 부분
+document.getElementById("nicknames").innerHTML = "특수문자를 사용할 수 없습니다.";
+document.getElementById("nicknameh").value = "";
+} //nicknamec에 저장된 문자열 길이가 1 미만일 때 실행 끝 부분
+
+} //nicknamecheck() 함수 실행 끝 부분
+
+function passwordcheck(pw) { //passwordcheck(pw) 함수 실행 시작 부분
+var pwc = document.getElementById("password01").value
+.replace(/[^a-zA-Z0-9\~\`\!\@\#\$\%\^\&\*\(\)\_\-\+\=\{\}\[\]\|\\\:\;\"\'\<\>\,\.\?\/]/g,"");
+document.getElementById("password01").value = pwc;
+var number = pw.search(/[0-9]/g);
+var alphabet = pw.search(/[a-z]/ig);
+var special =
+pw.search(/[\~\`\!\@\#\$\%\^\&\*\(\)\_\-\+\=\{\}\[\]\|\\\:\;\"\'\<\>\,\.\?\/]/g);
+if(((alphabet >= 0) &&  (number >= 0) && (special >= 0)) &&
+(document.getElementById("password01").value.length >= 8)) {
+//영어,숫자,특수문자를 포함하고 길이가 8이상일 때 실행 시작 부분
+if(document.getElementById("password01").value == document.getElementById("password02").value) {
+//비밀번호 및 비밀번호 확인란의 값이 일치하는 경우 실행 시작 부분
+document.getElementById("passwords1").innerHTML = "";
+document.getElementById("passwords2").innerHTML = "비밀번호가 확인되었습니다.";
+document.getElementById("passwordh").value = "1";
+} //비밀번호 및 비밀번호 확인란의 값이 일치하는 경우 실행 끝 부분
+else { //비밀번호 및 비밀번호 확인란의 값이 일치하지 않는 경우 실행 시작 부분
+document.getElementById("passwords1").innerHTML = "";
+document.getElementById("passwords2").innerHTML = "비밀번호와 동일한 값을 입력해주세요.";
+document.getElementById("passwordh").value = "";
+} //비밀번호 및 비밀번호 확인란의 값이 일치하지 않는 경우 실행 끝 부분
+} //영어,숫자,특수문자를 포함하고 길이가 8이상일 때 실행 끝 부분
+else {
+document.getElementById("passwords1").innerHTML = "영문, 숫자, 특수문자를 포함한  8자리 이상 입력하세요.";
+document.getElementById("passwords2").innerHTML = "비밀번호와 동일한 값을 입력해주세요.";
+document.getElementById("passwordh").value = "";
+}
+}  //passwordcheck(pw) 함수 실행 끝 부분
+
+function passwordcheck2(pw) {  //passwordcheck2(pw) 함수 실행 시작 부분
+var pwc = document.getElementById("password02").value
+.replace(/[^a-zA-Z0-9\~\`\!\@\#\$\%\^\&\*\(\)\_\-\+\=\{\}\[\]\|\\\:\;\"\'\<\>\,\.\?\/]/g,"");
+document.getElementById("password02").value = pwc;
+var number = pw.search(/[0-9]/g);
+var alphabet = pw.search(/[a-z]/ig);
+var special =
+pw.search(/[\~\`\!\@\#\$\%\^\&\*\(\)\_\-\+\=\{\}\[\]\|\\\:\;\"\'\<\>\,\.\?\/]/g);
+if(((alphabet >= 0) &&  (number >= 0) && (special >= 0)) &&
+(document.getElementById("password02").value.length >= 8)) {
+//영어,숫자,특수문자를 포함하고 길이가 8이상일 때 실행 시작 부분
+if(document.getElementById("password01").value == document.getElementById("password02").value) {
+//비밀번호 및 비밀번호 확인란의 값이 일치하는 경우 실행 시작 부분
+document.getElementById("passwords1").innerHTML = "";
+document.getElementById("passwords2").innerHTML = "비밀번호가 확인되었습니다.";
+document.getElementById("passwordh").value = "1";
+} //비밀번호 및 비밀번호 확인란의 값이 일치하는 경우 실행 끝 부분
+else { //비밀번호 및 비밀번호 확인란의 값이 일치하지 않는 경우 실행 시작 부분
+document.getElementById("passwords2").innerHTML = "비밀번호와 동일한 값을 입력해주세요.";
+document.getElementById("passwordh").value = "";
+} //비밀번호 및 비밀번호 확인란의 값이 일치하지 않는 경우 실행 끝 부분
+} //영어,숫자,특수문자를 포함하고 길이가 8이상일 때 실행 끝 부분
+else {
+document.getElementById("passwords2").innerHTML = "비밀번호와 동일한 값을 입력해주세요.";
+document.getElementById("passwordh").value = "";
+}
+} //passwordcheck2(pw) 함수 실행 끝 부분
+</script>
+</body>
+</html>
